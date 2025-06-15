@@ -80,7 +80,7 @@ These features were combined with CountVectorizer vectors and the models were re
 
 Confusion matrix analysis showed that Random Forest had fewer false predictions.
 
-![ss1](Images\bow2.png)
+![App Ss](Imges/bow2.png)
 
 ### Limitations of BoW with Advanced Features
 
@@ -90,6 +90,8 @@ While BoW with advanced features performed well, it still had key limitations:
 - Missed many real duplicate questions which had little word overlap but similar meanings.
 - Required extensive manual feature engineering and preprocessing.
 - Model performance plateaued at ~0.80 accuracy even after enhancements.
+
+  ![Wrong Prediction](Images/bow1.png)
 
 These challenges made it clear that a more **semantic understanding** of the questions was needed, which led to the next approach using transformer-based sentence embeddings.
 
@@ -113,6 +115,8 @@ Instead of using the model directly, we use cosine similarity between question e
 This method significantly improved performance on semantically similar questions like:
 - “What is Artificial Intelligence?” and “What is AI?” → Correctly predicted as Duplicate
 
+![Correct Prediction](Images/ptm2.png)
+
 ---
 
 ## 📌 Streamlit Web Application
@@ -121,3 +125,5 @@ A Streamlit-based web app was created that allows the user to input two question
 - Prediction (Duplicate / Not Duplicate)
 - Cosine similarity score
 
+![App Screenshot1](Images/ptm1.png)
+![App Screenshot2](Images/ptm3.png)
