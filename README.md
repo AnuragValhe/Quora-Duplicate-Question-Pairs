@@ -80,7 +80,7 @@ These features were combined with CountVectorizer vectors and the models were re
 
 Confusion matrix analysis showed that Random Forest had fewer false predictions.
 
-![App Ss](Imges/bow2.png)
+![App Ss](Images/bow2.png)
 
 ### Limitations of BoW with Advanced Features
 
