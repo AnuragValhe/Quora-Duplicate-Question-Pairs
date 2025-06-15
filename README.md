@@ -121,9 +121,35 @@ This method significantly improved performance on semantically similar questions
 
 ## 📌 Streamlit Web Application
 
-A Streamlit-based web app was created that allows the user to input two questions and get:
-- Prediction (Duplicate / Not Duplicate)
-- Cosine similarity score
+The duplicate question detection system is deployed through an intuitive web interface built using **Streamlit**. The web app allows users to enter two different questions and simply click the **“Check”** button to receive a prediction on whether the questions are semantically similar (i.e., duplicates) or not.
+
+
+**Transformer Embedding + Cosine Similarity:**
+
+   * Utilizes a pretrained Sentence Transformer (`all-MiniLM-L6-v2`) to generate semantic embeddings.
+   * Measures cosine similarity between the two question embeddings.
+   * If similarity > 0.75, the questions are predicted as duplicate.
+   * This version overcomes BoW model limitations by better capturing semantic meaning, even when phrasing differs.
+
+To enhance user experience, app also display:
+
+* Cosine Similarity Score
+* Prediction Result (`Duplicate` or `Not Duplicate`)
+* Clean and user-friendly layout with input fields and single-click evaluation
 
 ![App Screenshot1](Images/ptm1.png)
 ![App Screenshot2](Images/ptm3.png)
+
+---
+
+## 📌 Technologies & Libraries Used
+
+* **Scikit-learn** – For model training (Random Forest, XGBoost), evaluation, and vectorization (CountVectorizer).
+* **XGBoost** – Gradient boosting algorithm for better performance on large datasets.
+* **FuzzyWuzzy** – For generating fuzzy matching features (like token sort ratio, partial ratio, etc.).
+* **Sentence Transformers** – Used Hugging Face’s `all-MiniLM-L6-v2` model to generate dense semantic embeddings of questions.
+* **NLTK / Regex / Python’s string functions** – Used in text preprocessing and feature engineering.
+* **Matplotlib**, **Seaborn** – For visualizing feature distributions and model insights.
+* **Streamlit** – To build and deploy the web application interface.
+* **Pickle** – To save and load ML models and vectorizers for inference.
+
