@@ -141,4 +141,12 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
+---
 
+
+![Static Badge](https://img.shields.io/badge/Machine-Learning-blue)
+![Static Badge](https://img.shields.io/badge/Python-green)
+![Static Badge](https://img.shields.io/badge/NLP-blue)
+![Static Badge](https://img.shields.io/badge/Random-Forest-Green)
+![Static Badge](https://img.shields.io/badge/Jupyter-Notebook-blue)
+![Static Badge](https://img.shields.io/badge/Sentence-Transformer-green)
