@@ -2,9 +2,7 @@
 
 ## 📌 Project Overview
 
-This project focuses on identifying whether two Quora questions are duplicates or not. The idea originated from my habit of reading Quora regularly since my JEE days. While diving deeper into data science, I discovered that Quora once hosted a Kaggle competition related to NLP,for finding duplicate questions pair. I studied the dataset, went through various kernels, and decided to build my own approach using both traditional NLP techniques and transformer-based models.
-
-This project took over two weeks to build and includes multiple iterations, starting from simple Bag of Words (BoW) techniques to advanced sentence embeddings using transformer models. The goal was to explore how traditional and semantic techniques differ in handling such tasks and to build a robust, efficient system for detecting duplicates.
+This project aims to detect duplicate question pairs on Quora using both traditional NLP methods and transformer-based sentence embeddings. Inspired by the Kaggle competition and built over two weeks, it showcases iterative improvements from Bag-of-Words models to semantic similarity via pretrained transformers, highlighting performance and interpretability trade-offs.
 
 ---
 
@@ -50,106 +48,97 @@ These features, when combined with CountVectorizer output, showed improved perfo
 - Random Forest → 0.770
 - XGBoost → 0.771
 
+
 ---
 
 ### 3. BoW with Advanced Feature Engineering
 
-This version used a comprehensive set of 21 features, categorized into token-based, length-based, and fuzzy string matching features:
+To enhance lexical-based modeling, 21 hand-crafted features were engineered across three categories:
 
-**Seven Token-Based Features:**
-- `cwc_min`, `cwc_max`: Ratio of common non-stopwords to min/max word count
-- `csc_min`, `csc_max`: Ratio of common stopwords to min/max word count
-- `ctc_min`, `ctc_max`: Ratio of total common tokens to min/max word count
-- `last_word_eq`, `first_word_eq`: Boolean flags for whether first/last words are equal
+* **Token-Based**: Ratios of common/non-common words (stopwords & non-stopwords), and match indicators for first/last words.
+* **Length-Based**: Length difference, mean length, and longest common substring ratio.
+* **Fuzzy Matching** (via `fuzzywuzzy`): `fuzz_ratio`, `partial_ratio`, `token_sort_ratio`, `token_set_ratio`.
 
-**Three Length-Based Features:**
-- `abs_len_diff`: Absolute difference in lengths
-- `mean_len`: Mean of the two question lengths
-- `longest_substr_ratio`: Ratio of longest common substring length to min length
+Combined with `CountVectorizer`, these features improved results:
 
-**Four Fuzzy Features:**
-Extracted using the `fuzzywuzzy` library for string similarity:
-- `fuzz_ratio`
-- `fuzz_partial_ratio`
-- `token_sort_ratio`
-- `token_set_ratio`
+* Random Forest → **0.800**
+* XGBoost → 0.797
 
-These features were combined with CountVectorizer vectors and the models were retrained:
-- Random Forest → 0.800
-- XGBoost → 0.797
+**Limitations**:
+Despite better performance, the model still relied heavily on lexical overlap, struggled with semantically similar but differently worded questions, and involved heavy manual engineering.
 
-Confusion matrix analysis showed that Random Forest had fewer false predictions.
+![Wrong Prediction](Images/bow1.png)
 
-![App Ss](Images/bow2.png)
-
-### Limitations of BoW with Advanced Features
-
-While BoW with advanced features performed well, it still had key limitations:
-
-- It relied heavily on lexical overlap — it could not fully capture semantic meaning.
-- Missed many real duplicate questions which had little word overlap but similar meanings.
-- Required extensive manual feature engineering and preprocessing.
-- Model performance plateaued at ~0.80 accuracy even after enhancements.
-
-  ![Wrong Prediction](Images/bow1.png)
-
-These challenges made it clear that a more **semantic understanding** of the questions was needed, which led to the next approach using transformer-based sentence embeddings.
+These limitations highlighted the need for semantic embeddings, leading to Transformer-based modeling.
 
 ---
 
-### 4. Sentence Embedding using Transformer (Pre-Trained Model)
+### 4. Transformer-Based Semantic Embedding
 
-To address the limitations of BoW models, we used sentence embeddings from Hugging Face’s `sentence-transformers` library.
+To overcome BoW’s lexical limitations, we used Hugging Face’s `paraphrase-MiniLM-L6-v2` model via `sentence-transformers` to generate dense semantic embeddings.
 
-- Model used: `paraphrase-MiniLM-L6-v2`
-- Embeddings generated for both questions and passed to XGBoost
-- Trained on the full dataset (400,000+ rows)
-- Achieved accuracy: 0.841
+* Embeddings for both questions were passed to XGBoost
+* Trained on full dataset (400K+ samples)
+* Achieved accuracy: **0.841**
 
-### Final Prediction via Cosine Similarity:
+### Cosine Similarity for Final Prediction
 
-Instead of using the model directly, we use cosine similarity between question embeddings to make final predictions:
-- If cosine similarity ≥ 0.75 → Duplicate
-- Else → Not Duplicate
+Instead of relying solely on XGBoost, final predictions were made using cosine similarity:
 
-This method significantly improved performance on semantically similar questions like:
-- “What is Artificial Intelligence?” and “What is AI?” → Correctly predicted as Duplicate
+* **Similarity ≥ 0.75** → Duplicate
+* **< 0.75** → Not Duplicate
+
+This approach handled semantically equivalent questions like
+*“What is Artificial Intelligence?” ↔ “What is AI?”* with high precision.
 
 ![Correct Prediction](Images/ptm2.png)
+
 
 ---
 
 ## 📌 Streamlit Web Application
 
-The duplicate question detection system is deployed through an intuitive web interface built using **Streamlit**. The web app allows users to enter two different questions and simply click the **“Check”** button to receive a prediction on whether the questions are semantically similar (i.e., duplicates) or not.
+A simple and intuitive **Streamlit** interface lets users input two questions and instantly get:
 
+* **Cosine similarity score**
+* **Prediction**: Duplicate / Not Duplicate
+* Powered by `all-MiniLM-L6-v2` embeddings + cosine similarity
 
-**Transformer Embedding + Cosine Similarity:**
-
-   * Utilizes a pretrained Sentence Transformer (`all-MiniLM-L6-v2`) to generate semantic embeddings.
-   * Measures cosine similarity between the two question embeddings.
-   * If similarity > 0.75, the questions are predicted as duplicate.
-   * This version overcomes BoW model limitations by better capturing semantic meaning, even when phrasing differs.
-
-To enhance user experience, app also display:
-
-* Cosine Similarity Score
-* Prediction Result (`Duplicate` or `Not Duplicate`)
-* Clean and user-friendly layout with input fields and single-click evaluation
+This interface demonstrates real-time semantic matching beyond lexical overlap, handling paraphrased questions effectively.
 
 ![App Screenshot1](Images/ptm1.png)
-![App Screenshot2](Images/ptm3.png)
 
 ---
 
-## 📌 Technologies & Libraries Used
+## 📌 Technologies Used
 
-* **Scikit-learn** – For model training (Random Forest, XGBoost), evaluation, and vectorization (CountVectorizer).
-* **XGBoost** – Gradient boosting algorithm for better performance on large datasets.
-* **FuzzyWuzzy** – For generating fuzzy matching features (like token sort ratio, partial ratio, etc.).
-* **Sentence Transformers** – Used Hugging Face’s `all-MiniLM-L6-v2` model to generate dense semantic embeddings of questions.
-* **NLTK / Regex / Python’s string functions** – Used in text preprocessing and feature engineering.
-* **Matplotlib**, **Seaborn** – For visualizing feature distributions and model insights.
-* **Streamlit** – To build and deploy the web application interface.
-* **Pickle** – To save and load ML models and vectorizers for inference.
+| Category           | Tools & Libraries                                          |
+| ------------------ | ---------------------------------------------------------- |
+| **Modeling**       | `scikit-learn`, `XGBoost`, `pickle`                        |
+| **NLP & Features** | `CountVectorizer`, `fuzzywuzzy`, `nltk`, `regex`, `string` |
+| **Embeddings**     | `sentence-transformers` (`all-MiniLM-L6-v2`)               |
+| **Visualization**  | `matplotlib`, `seaborn`                                    |
+| **Deployment**     | `Streamlit` for web UI                                     |
+
+---
+
+## 📌 Run Locally
+
+1. Clone the repository  
+```bash
+git clone https://github.com/AnuragValhe/Quora-Duplicate-Question-Detection.git
+cd Quora-Duplicate-Question-Detection
+````
+
+2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the Streamlit app
+
+```bash
+streamlit run app.py
+```
 
